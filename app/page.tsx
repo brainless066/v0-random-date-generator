@@ -13,6 +13,36 @@ const MONTHS = [
 
 const DAYS_IN_MONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 
+const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+
+// Calculate day of week using Zeller's congruence (modified for proleptic Gregorian calendar)
+// Assumes Gregorian calendar extends back to 1 CE
+function getWeekday(year: number, month: number, day: number): string {
+  // Zeller's congruence uses months 3-14 (March = 3, ..., February = 14 of previous year)
+  let m = month + 1 // Convert 0-indexed to 1-indexed
+  let y = year
+  
+  if (m < 3) {
+    m += 12
+    y -= 1
+  }
+  
+  const q = day
+  const k = y % 100
+  const j = Math.floor(y / 100)
+  
+  // Zeller's formula for Gregorian calendar
+  let h = (q + Math.floor((13 * (m + 1)) / 5) + k + Math.floor(k / 4) + Math.floor(j / 4) - 2 * j) % 7
+  
+  // Handle negative modulo
+  h = ((h % 7) + 7) % 7
+  
+  // Convert Zeller result (0=Saturday, 1=Sunday, ..., 6=Friday) to standard (0=Sunday, 1=Monday, ...)
+  const dayIndex = (h + 6) % 7
+  
+  return WEEKDAYS[dayIndex]
+}
+
 function isLeapYear(year: number): boolean {
   return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0)
 }
@@ -47,9 +77,11 @@ export default function RandomDateGenerator() {
   const [endCentury, setEndCentury] = useState(500)
   const [generatedDate, setGeneratedDate] = useState<{ year: number; month: number; day: number } | null>(null)
   const [error, setError] = useState("")
+  const [showWeekday, setShowWeekday] = useState(false)
 
   const handleGenerate = () => {
     setError("")
+    setShowWeekday(false)
     
     if (startCentury < 1 || endCentury > 500) {
       setError("Centuries must be between 1 and 500")
@@ -131,6 +163,21 @@ export default function RandomDateGenerator() {
               <p className="text-slate-400 text-sm mt-2">
                 {formatOrdinal(getCenturyFromYear(generatedDate.year))} Century
               </p>
+              
+              <div className="mt-4 pt-4 border-t border-slate-600">
+                {showWeekday ? (
+                  <p className="text-2xl font-bold text-amber-400">
+                    {getWeekday(generatedDate.year, generatedDate.month, generatedDate.day)}
+                  </p>
+                ) : (
+                  <button
+                    onClick={() => setShowWeekday(true)}
+                    className="px-4 py-2 rounded-md bg-slate-600 hover:bg-slate-500 text-slate-200 text-sm font-medium transition-colors"
+                  >
+                    Reveal Weekday
+                  </button>
+                )}
+              </div>
             </div>
           )}
 
