@@ -79,6 +79,13 @@ export default function RandomDateGenerator() {
   const [error, setError] = useState("")
   const [showWeekday, setShowWeekday] = useState(false)
 
+  // Verify date section state
+  const [verifyYear, setVerifyYear] = useState("")
+  const [verifyMonth, setVerifyMonth] = useState("")
+  const [verifyDay, setVerifyDay] = useState("")
+  const [verifyError, setVerifyError] = useState("")
+  const [verifyWeekday, setVerifyWeekday] = useState<string | null>(null)
+
   const handleGenerate = () => {
     setError("")
     setShowWeekday(false)
@@ -104,8 +111,40 @@ export default function RandomDateGenerator() {
     return Math.ceil(year / 100)
   }
 
+  const handleVerify = () => {
+    setVerifyError("")
+    setVerifyWeekday(null)
+
+    const year = parseInt(verifyYear)
+    const month = parseInt(verifyMonth)
+    const day = parseInt(verifyDay)
+
+    if (isNaN(year) || year < 1 || year > 50000) {
+      setVerifyError("Year must be between 1 and 50000")
+      return
+    }
+
+    if (isNaN(month) || month < 1 || month > 12) {
+      setVerifyError("Month must be between 1 and 12")
+      return
+    }
+
+    const maxDays = getDaysInMonth(month - 1, year)
+    if (isNaN(day) || day < 1 || day > maxDays) {
+      setVerifyError(`Day must be between 1 and ${maxDays} for ${MONTHS[month - 1]} ${year}`)
+      return
+    }
+  }
+
+  const handleRevealVerifyWeekday = () => {
+    const year = parseInt(verifyYear)
+    const month = parseInt(verifyMonth)
+    const day = parseInt(verifyDay)
+    setVerifyWeekday(getWeekday(year, month - 1, day))
+  }
+
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
+    <main className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex flex-col lg:flex-row items-center justify-center gap-6 p-4">
       <Card className="w-full max-w-md border-slate-700 bg-slate-800/50 backdrop-blur">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold text-white">Random Date Generator</CardTitle>
@@ -185,6 +224,103 @@ export default function RandomDateGenerator() {
             <p>Century 1 = Years 1-100 CE</p>
             <p>Century 500 = Years 49901-50000 CE</p>
           </div>
+        </CardContent>
+      </Card>
+
+      <Card className="w-full max-w-md border-slate-700 bg-slate-800/50 backdrop-blur">
+        <CardHeader className="text-center">
+          <CardTitle className="text-xl font-bold text-white">Verify a Date</CardTitle>
+          <CardDescription className="text-slate-400">
+            Enter a date to check its weekday
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-3 gap-3">
+            <Field>
+              <FieldLabel className="text-slate-300 text-sm">Year</FieldLabel>
+              <Input
+                type="number"
+                min={1}
+                max={50000}
+                value={verifyYear}
+                onChange={(e) => {
+                  setVerifyYear(e.target.value)
+                  setVerifyWeekday(null)
+                }}
+                className="bg-slate-700 border-slate-600 text-white placeholder:text-slate-500"
+                placeholder="2000"
+              />
+            </Field>
+            <Field>
+              <FieldLabel className="text-slate-300 text-sm">Month</FieldLabel>
+              <Input
+                type="number"
+                min={1}
+                max={12}
+                value={verifyMonth}
+                onChange={(e) => {
+                  setVerifyMonth(e.target.value)
+                  setVerifyWeekday(null)
+                }}
+                className="bg-slate-700 border-slate-600 text-white placeholder:text-slate-500"
+                placeholder="4"
+              />
+            </Field>
+            <Field>
+              <FieldLabel className="text-slate-300 text-sm">Day</FieldLabel>
+              <Input
+                type="number"
+                min={1}
+                max={31}
+                value={verifyDay}
+                onChange={(e) => {
+                  setVerifyDay(e.target.value)
+                  setVerifyWeekday(null)
+                }}
+                className="bg-slate-700 border-slate-600 text-white placeholder:text-slate-500"
+                placeholder="4"
+              />
+            </Field>
+          </div>
+
+          {verifyError && (
+            <p className="text-red-400 text-sm text-center">{verifyError}</p>
+          )}
+
+          <Button 
+            onClick={() => {
+              handleVerify()
+              if (!verifyError) {
+                const year = parseInt(verifyYear)
+                const month = parseInt(verifyMonth)
+                const day = parseInt(verifyDay)
+                if (!isNaN(year) && !isNaN(month) && !isNaN(day)) {
+                  // Validation passed, show the reveal button
+                }
+              }
+            }} 
+            className="w-full bg-amber-600 hover:bg-amber-700 text-white font-semibold"
+          >
+            Validate Date
+          </Button>
+
+          {verifyYear && verifyMonth && verifyDay && !verifyError && (
+            <div className="p-4 rounded-lg bg-slate-700/50 border border-slate-600 text-center">
+              <p className="text-lg text-slate-300 mb-3">
+                {MONTHS[parseInt(verifyMonth) - 1]} {formatOrdinal(parseInt(verifyDay))}, {parseInt(verifyYear).toLocaleString()} CE
+              </p>
+              {verifyWeekday ? (
+                <p className="text-2xl font-bold text-amber-400">{verifyWeekday}</p>
+              ) : (
+                <button
+                  onClick={handleRevealVerifyWeekday}
+                  className="px-4 py-2 rounded-md bg-slate-600 hover:bg-slate-500 text-slate-200 text-sm font-medium transition-colors"
+                >
+                  Reveal Weekday
+                </button>
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
     </main>
