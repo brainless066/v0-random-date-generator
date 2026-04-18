@@ -74,7 +74,7 @@ function formatOrdinal(n: number): string {
 
 export default function RandomDateGenerator() {
   const [startCentury, setStartCentury] = useState(1)
-  const [endCentury, setEndCentury] = useState(500)
+  const [endCentury, setEndCentury] = useState(100000)
   const [generatedDate, setGeneratedDate] = useState<{ year: number; month: number; day: number } | null>(null)
   const [error, setError] = useState("")
   const [showWeekday, setShowWeekday] = useState(false)
@@ -90,8 +90,8 @@ export default function RandomDateGenerator() {
     setError("")
     setShowWeekday(false)
     
-    if (startCentury < 1 || endCentury > 500) {
-      setError("Centuries must be between 1 and 500")
+    if (startCentury < 1 || endCentury > 100000) {
+      setError("Centuries must be between 1 and 100000")
       return
     }
     
@@ -119,8 +119,8 @@ export default function RandomDateGenerator() {
     const month = parseInt(verifyMonth)
     const day = parseInt(verifyDay)
 
-    if (isNaN(year) || year < 1 || year > 50000) {
-      setVerifyError("Year must be between 1 and 50000")
+    if (isNaN(year) || year < 1 || year > 10000000) {
+      setVerifyError("Year must be between 1 and 10,000,000")
       return
     }
 
@@ -149,17 +149,17 @@ export default function RandomDateGenerator() {
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold text-white">Random Date Generator</CardTitle>
           <CardDescription className="text-slate-400">
-            Generate a random date from 1 CE to 50000 CE
+            Generate a random date from 1 CE to 10,000,000 CE
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <FieldGroup>
             <Field>
-              <FieldLabel className="text-slate-300">Start Century (1-500)</FieldLabel>
+              <FieldLabel className="text-slate-300">Start Century (1-100000)</FieldLabel>
               <Input
                 type="number"
                 min={1}
-                max={500}
+                max={100000}
                 value={startCentury}
                 onChange={(e) => setStartCentury(Number(e.target.value))}
                 className="bg-slate-700 border-slate-600 text-white placeholder:text-slate-500"
@@ -167,11 +167,11 @@ export default function RandomDateGenerator() {
               />
             </Field>
             <Field>
-              <FieldLabel className="text-slate-300">End Century (1-500)</FieldLabel>
+              <FieldLabel className="text-slate-300">End Century (1-100000)</FieldLabel>
               <Input
                 type="number"
                 min={1}
-                max={500}
+                max={100000}
                 value={endCentury}
                 onChange={(e) => setEndCentury(Number(e.target.value))}
                 className="bg-slate-700 border-slate-600 text-white placeholder:text-slate-500"
@@ -222,7 +222,7 @@ export default function RandomDateGenerator() {
 
           <div className="text-xs text-slate-500 text-center space-y-1">
             <p>Century 1 = Years 1-100 CE</p>
-            <p>Century 500 = Years 49901-50000 CE</p>
+            <p>Century 100000 = Years 9,999,901-10,000,000 CE</p>
           </div>
         </CardContent>
       </Card>
@@ -241,7 +241,7 @@ export default function RandomDateGenerator() {
               <Input
                 type="number"
                 min={1}
-                max={50000}
+                max={10000000}
                 value={verifyYear}
                 onChange={(e) => {
                   setVerifyYear(e.target.value)
