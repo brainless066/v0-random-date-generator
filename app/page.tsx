@@ -111,10 +111,25 @@ export default function RandomDateGenerator() {
   const [elapsedTime, setElapsedTime] = useState(0)
   const [dateVisible, setDateVisible] = useState(true)
   const [hideCountdown, setHideCountdown] = useState<number | null>(null)
+  const [customRangeMode, setCustomRangeMode] = useState(false)
+  const [customStartCentury, setCustomStartCentury] = useState(1)
+  const [customEndCentury, setCustomEndCentury] = useState(500)
 
   const generateChallengeDate = useCallback(() => {
-    // Generate random date from century 1 to 500 (year 1 to 50000)
-    const date = generateRandomDate(1, 50000)
+    // Calculate year range based on custom range mode
+    let startYear: number
+    let endYear: number
+    
+    if (customRangeMode) {
+      startYear = (customStartCentury - 1) * 100 + 1
+      endYear = customEndCentury * 100
+    } else {
+      // Default: century 1 to 500 (year 1 to 50000)
+      startYear = 1
+      endYear = 50000
+    }
+    
+    const date = generateRandomDate(startYear, endYear)
     setCurrentDate(date)
     
     // In hard mode, start countdown and hide the date after 1 second
@@ -122,7 +137,7 @@ export default function RandomDateGenerator() {
       setDateVisible(true)
       setHideCountdown(1000)
     }
-  }, [hardMode])
+  }, [hardMode, customRangeMode, customStartCentury, customEndCentury])
 
   const startChallenge = () => {
     setChallengeStarted(true)
@@ -304,7 +319,7 @@ export default function RandomDateGenerator() {
               <CardHeader className="text-center">
                 <CardTitle className="text-2xl font-bold text-white">Weekday Challenge</CardTitle>
                 <CardDescription className="text-slate-400">
-                  Guess the weekday for random dates (1-500 centuries) in 60 seconds
+                  Guess the weekday for random dates {customRangeMode ? `(${customStartCentury.toLocaleString()}-${customEndCentury.toLocaleString()} centuries)` : '(1-500 centuries)'} {infiniteMode ? '' : 'in 60 seconds'}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -338,6 +353,49 @@ export default function RandomDateGenerator() {
                     checked={infiniteMode} 
                     onCheckedChange={setInfiniteMode}
                   />
+                </div>
+                
+                {/* Custom Range Mode Toggle */}
+                <div className="space-y-3 p-3 rounded-lg bg-slate-700/50 border border-slate-600">
+                  <div className="flex items-center justify-center gap-3">
+                    <span className={`text-sm ${customRangeMode ? 'text-violet-400 font-semibold' : 'text-slate-400'}`}>
+                      Custom Range
+                    </span>
+                    <Switch 
+                      checked={customRangeMode} 
+                      onCheckedChange={setCustomRangeMode}
+                    />
+                  </div>
+                  
+                  {customRangeMode && (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <label className="text-xs text-slate-400 w-20">From Century</label>
+                        <Input
+                          type="number"
+                          min={1}
+                          max={100000}
+                          value={customStartCentury}
+                          onChange={(e) => setCustomStartCentury(Math.max(1, Math.min(100000, Number(e.target.value) || 1)))}
+                          className="bg-slate-600 border-slate-500 text-white text-sm h-8"
+                        />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <label className="text-xs text-slate-400 w-20">To Century</label>
+                        <Input
+                          type="number"
+                          min={1}
+                          max={100000}
+                          value={customEndCentury}
+                          onChange={(e) => setCustomEndCentury(Math.max(1, Math.min(100000, Number(e.target.value) || 1)))}
+                          className="bg-slate-600 border-slate-500 text-white text-sm h-8"
+                        />
+                      </div>
+                      <p className="text-xs text-slate-500 text-center">
+                        Years {((customStartCentury - 1) * 100 + 1).toLocaleString()} - {(customEndCentury * 100).toLocaleString()} CE
+                      </p>
+                    </div>
+                  )}
                 </div>
                 
                 <Button 
@@ -440,12 +498,17 @@ export default function RandomDateGenerator() {
               
               <CardHeader className="text-center pb-2">
                 {/* Mode badges */}
-                <div className="mb-2 flex items-center justify-center gap-2">
+                <div className="mb-2 flex items-center justify-center gap-2 flex-wrap">
                   {hardMode && (
                     <span className="px-2 py-1 rounded text-xs font-bold bg-red-600 text-white">HARD MODE</span>
                   )}
                   {infiniteMode && (
                     <span className="px-2 py-1 rounded text-xs font-bold bg-cyan-600 text-white">INFINITE</span>
+                  )}
+                  {customRangeMode && (
+                    <span className="px-2 py-1 rounded text-xs font-bold bg-violet-600 text-white">
+                      {customStartCentury.toLocaleString()}-{customEndCentury.toLocaleString()} C
+                    </span>
                   )}
                 </div>
                 {/* Timer */}
