@@ -317,15 +317,15 @@ export default function RandomDateGenerator() {
           {!challengeStarted ? (
             <Card className="w-full max-w-md border-slate-700 bg-slate-800/50 backdrop-blur">
               <CardHeader className="text-center">
-                <CardTitle className="text-2xl font-bold text-white">Weekday Challenge</CardTitle>
+                <CardTitle className="text-2xl font-bold text-white">Challenge</CardTitle>
                 <CardDescription className="text-slate-400">
-                  Guess the weekday for random dates {customRangeMode ? `(${customStartCentury.toLocaleString()}-${customEndCentury.toLocaleString()} centuries)` : '(1-500 centuries)'} {infiniteMode ? '' : 'in 60 seconds'}
+                  Guess the day of the week for random dates {customRangeMode ? `(${customStartCentury.toLocaleString()}-${customEndCentury.toLocaleString()} centuries)` : '(1-500 centuries)'} {infiniteMode ? '' : 'in 60 seconds'}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="text-center space-y-2 text-slate-300">
                   <p>You will be shown random dates.</p>
-                  <p>Click the correct weekday as fast as you can!</p>
+                  <p>Click the correct day of the week as fast as you can!</p>
                   <p className={hardMode ? 'text-red-400 font-semibold' : infiniteMode ? 'text-cyan-400 font-semibold' : 'text-amber-400 font-semibold'}>
                     {hardMode && 'Date visible for 3 seconds only!'}
                     {!hardMode && infiniteMode && 'No time limit - stop whenever you want!'}
