@@ -297,7 +297,9 @@ export default function RandomDateGenerator() {
                 <div className="text-center space-y-2 text-slate-300">
                   <p>You will be shown random dates.</p>
                   <p>Click the correct weekday as fast as you can!</p>
-                  <p className="text-amber-400 font-semibold">You have 1 minute.</p>
+                  <p className={hardMode ? 'text-red-400 font-semibold' : 'text-amber-400 font-semibold'}>
+                    {hardMode ? 'Date visible for 1 second only!' : 'You have 1 minute.'}
+                  </p>
                 </div>
                 
                 {/* Hard Mode Toggle */}
@@ -309,9 +311,6 @@ export default function RandomDateGenerator() {
                     checked={hardMode} 
                     onCheckedChange={setHardMode}
                   />
-                  {hardMode && (
-                    <span className="text-xs text-red-400/80">Date visible for 1 second only!</span>
-                  )}
                 </div>
                 
                 <Button 
