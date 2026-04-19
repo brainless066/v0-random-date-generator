@@ -317,7 +317,7 @@ export default function RandomDateGenerator() {
           {!challengeStarted ? (
             <Card className="w-full max-w-md border-slate-700 bg-slate-800/50 backdrop-blur">
               <CardHeader className="text-center">
-                <CardTitle className="text-2xl font-bold text-white">Weekday Challenge</CardTitle>
+                <CardTitle className="text-2xl font-bold text-white">Challenge</CardTitle>
                 <CardDescription className="text-slate-400">
                   Guess the day of the week for random dates {customRangeMode ? `(${customStartCentury.toLocaleString()}-${customEndCentury.toLocaleString()} centuries)` : '(1-500 centuries)'} {infiniteMode ? '' : 'in 60 seconds'}
                 </CardDescription>
