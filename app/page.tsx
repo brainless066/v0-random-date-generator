@@ -106,12 +106,20 @@ export default function RandomDateGenerator() {
   const [results, setResults] = useState<ChallengeResult[]>([])
   const [startTime, setStartTime] = useState<number>(0)
   const [feedback, setFeedback] = useState<{ isCorrect: boolean; show: boolean }>({ isCorrect: false, show: false })
+  const [hardMode, setHardMode] = useState(false)
+  const [dateVisible, setDateVisible] = useState(true)
 
   const generateChallengeDate = useCallback(() => {
     // Generate random date from century 1 to 500 (year 1 to 50000)
     const date = generateRandomDate(1, 50000)
     setCurrentDate(date)
-  }, [])
+    
+    // In hard mode, hide the date after 1 second
+    if (hardMode) {
+      setDateVisible(true)
+      setTimeout(() => setDateVisible(false), 1000)
+    }
+  }, [hardMode])
 
   const startChallenge = () => {
     setChallengeStarted(true)
@@ -119,6 +127,7 @@ export default function RandomDateGenerator() {
     setTimeLeft(60)
     setResults([])
     setStartTime(Date.now())
+    setDateVisible(true)
     generateChallengeDate()
   }
 
@@ -151,6 +160,7 @@ export default function RandomDateGenerator() {
     setTimeLeft(60)
     setCurrentDate(null)
     setResults([])
+    setDateVisible(true)
   }
 
   // Timer effect
@@ -269,11 +279,30 @@ export default function RandomDateGenerator() {
                   <p>Click the correct weekday as fast as you can!</p>
                   <p className="text-amber-400 font-semibold">You have 1 minute.</p>
                 </div>
+                
+                {/* Hard Mode Toggle */}
+                <div className="flex items-center justify-center gap-3 p-3 rounded-lg bg-slate-700/50 border border-slate-600">
+                  <span className={`text-sm ${hardMode ? 'text-red-400 font-semibold' : 'text-slate-400'}`}>
+                    Hard Mode
+                  </span>
+                  <Switch 
+                    checked={hardMode} 
+                    onCheckedChange={setHardMode}
+                  />
+                  {hardMode && (
+                    <span className="text-xs text-red-400/80">Date visible for 1 second only!</span>
+                  )}
+                </div>
+                
                 <Button 
                   onClick={startChallenge}
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-lg py-6"
+                  className={`w-full font-semibold text-lg py-6 ${
+                    hardMode 
+                      ? 'bg-red-600 hover:bg-red-700' 
+                      : 'bg-emerald-600 hover:bg-emerald-700'
+                  } text-white`}
                 >
-                  Start Challenge
+                  Start {hardMode ? 'Hard' : ''} Challenge
                 </Button>
               </CardContent>
             </Card>
@@ -350,8 +379,14 @@ export default function RandomDateGenerator() {
               />
               
               <CardHeader className="text-center pb-2">
+                {/* Hard mode badge */}
+                {hardMode && (
+                  <div className="mb-2">
+                    <span className="px-2 py-1 rounded text-xs font-bold bg-red-600 text-white">HARD MODE</span>
+                  </div>
+                )}
                 {/* Timer */}
-                <div className={`text-5xl font-mono font-bold ${timeLeft <= 10 ? 'text-red-400' : 'text-amber-400'}`}>
+                <div className={`text-5xl font-mono font-bold ${timeLeft <= 10 ? 'text-red-400' : hardMode ? 'text-red-400' : 'text-amber-400'}`}>
                   {timeLeft}s
                 </div>
                 <div className="text-slate-400 text-sm mt-1">
@@ -362,16 +397,25 @@ export default function RandomDateGenerator() {
                 {currentDate && (
                   <>
                     {/* Date display */}
-                    <div className="p-6 rounded-lg bg-slate-700/50 border border-slate-600 text-center">
-                      <p className="text-3xl font-bold text-emerald-400">
-                        {MONTHS[currentDate.month]} {formatOrdinal(currentDate.day)}
-                      </p>
-                      <p className="text-4xl font-extrabold text-white mt-2">
-                        {currentDate.year.toLocaleString()} CE
-                      </p>
-                      <p className="text-slate-400 text-sm mt-2">
-                        {formatOrdinal(getCenturyFromYear(currentDate.year))} Century
-                      </p>
+                    <div className="p-6 rounded-lg bg-slate-700/50 border border-slate-600 text-center min-h-[140px] flex flex-col items-center justify-center">
+                      {dateVisible ? (
+                        <>
+                          <p className="text-3xl font-bold text-emerald-400">
+                            {MONTHS[currentDate.month]} {formatOrdinal(currentDate.day)}
+                          </p>
+                          <p className="text-4xl font-extrabold text-white mt-2">
+                            {currentDate.year.toLocaleString()} CE
+                          </p>
+                          <p className="text-slate-400 text-sm mt-2">
+                            {formatOrdinal(getCenturyFromYear(currentDate.year))} Century
+                          </p>
+                        </>
+                      ) : (
+                        <div className="text-center">
+                          <p className="text-2xl font-bold text-red-400">Date Hidden</p>
+                          <p className="text-slate-500 text-sm mt-1">Remember the date!</p>
+                        </div>
+                      )}
                     </div>
 
                     {/* Weekday buttons */}
