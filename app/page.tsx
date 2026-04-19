@@ -132,10 +132,10 @@ export default function RandomDateGenerator() {
     const date = generateRandomDate(startYear, endYear)
     setCurrentDate(date)
     
-    // In hard mode, start countdown and hide the date after 1 second
+    // In hard mode, start countdown and hide the date after 3 seconds
     if (hardMode) {
       setDateVisible(true)
-      setHideCountdown(1000)
+      setHideCountdown(3000)
     }
   }, [hardMode, customRangeMode, customStartCentury, customEndCentury])
 
@@ -327,7 +327,7 @@ export default function RandomDateGenerator() {
                   <p>You will be shown random dates.</p>
                   <p>Click the correct weekday as fast as you can!</p>
                   <p className={hardMode ? 'text-red-400 font-semibold' : infiniteMode ? 'text-cyan-400 font-semibold' : 'text-amber-400 font-semibold'}>
-                    {hardMode && 'Date visible for 1 second only!'}
+                    {hardMode && 'Date visible for 3 seconds only!'}
                     {!hardMode && infiniteMode && 'No time limit - stop whenever you want!'}
                     {!hardMode && !infiniteMode && 'You have 1 minute.'}
                   </p>
