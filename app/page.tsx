@@ -105,6 +105,7 @@ export default function RandomDateGenerator() {
   const [currentDate, setCurrentDate] = useState<{ year: number; month: number; day: number } | null>(null)
   const [results, setResults] = useState<ChallengeResult[]>([])
   const [startTime, setStartTime] = useState<number>(0)
+  const [feedback, setFeedback] = useState<{ isCorrect: boolean; show: boolean }>({ isCorrect: false, show: false })
 
   const generateChallengeDate = useCallback(() => {
     // Generate random date from century 1 to 500 (year 1 to 50000)
@@ -136,6 +137,11 @@ export default function RandomDateGenerator() {
     }
 
     setResults(prev => [...prev, result])
+    
+    // Show instant feedback flash
+    setFeedback({ isCorrect, show: true })
+    setTimeout(() => setFeedback(prev => ({ ...prev, show: false })), 300)
+    
     generateChallengeDate()
   }
 
@@ -335,7 +341,14 @@ export default function RandomDateGenerator() {
               </CardContent>
             </Card>
           ) : (
-            <Card className="w-full max-w-lg border-slate-700 bg-slate-800/50 backdrop-blur">
+            <Card className="w-full max-w-lg border-slate-700 bg-slate-800/50 backdrop-blur relative overflow-hidden">
+              {/* Instant feedback flash overlay */}
+              <div 
+                className={`absolute inset-0 pointer-events-none transition-opacity duration-150 ${
+                  feedback.show ? 'opacity-100' : 'opacity-0'
+                } ${feedback.isCorrect ? 'bg-emerald-500/30' : 'bg-red-500/30'}`}
+              />
+              
               <CardHeader className="text-center pb-2">
                 {/* Timer */}
                 <div className={`text-5xl font-mono font-bold ${timeLeft <= 10 ? 'text-red-400' : 'text-amber-400'}`}>
