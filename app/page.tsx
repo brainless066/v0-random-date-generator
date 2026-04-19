@@ -302,7 +302,7 @@ export default function RandomDateGenerator() {
     return (
       <main className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">
         {/* Toggle in top right */}
-        <div className="fixed top-4 right-4 flex items-center gap-3 bg-slate-800/80 backdrop-blur px-4 py-2 rounded-lg border border-slate-700">
+        <div className="fixed top-4 right-4 z-50 flex items-center gap-3 bg-slate-800/80 backdrop-blur px-4 py-2 rounded-lg border border-slate-700">
           <span className="text-slate-300 text-sm">Challenge Mode</span>
           <Switch 
             checked={challengeMode} 
@@ -609,7 +609,7 @@ export default function RandomDateGenerator() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">
       {/* Toggle in top right */}
-      <div className="fixed top-4 right-4 flex items-center gap-3 bg-slate-800/80 backdrop-blur px-4 py-2 rounded-lg border border-slate-700">
+      <div className="fixed top-4 right-4 z-50 flex items-center gap-3 bg-slate-800/80 backdrop-blur px-4 py-2 rounded-lg border border-slate-700">
         <span className="text-slate-300 text-sm">Challenge Mode</span>
         <Switch checked={challengeMode} onCheckedChange={setChallengeMode} />
       </div>
