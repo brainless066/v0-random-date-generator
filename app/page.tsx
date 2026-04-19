@@ -108,16 +108,17 @@ export default function RandomDateGenerator() {
   const [feedback, setFeedback] = useState<{ isCorrect: boolean; show: boolean }>({ isCorrect: false, show: false })
   const [hardMode, setHardMode] = useState(false)
   const [dateVisible, setDateVisible] = useState(true)
+  const [hideCountdown, setHideCountdown] = useState<number | null>(null)
 
   const generateChallengeDate = useCallback(() => {
     // Generate random date from century 1 to 500 (year 1 to 50000)
     const date = generateRandomDate(1, 50000)
     setCurrentDate(date)
     
-    // In hard mode, hide the date after 1 second
+    // In hard mode, start countdown and hide the date after 1 second
     if (hardMode) {
       setDateVisible(true)
-      setTimeout(() => setDateVisible(false), 1000)
+      setHideCountdown(1000)
     }
   }, [hardMode])
 
@@ -128,6 +129,7 @@ export default function RandomDateGenerator() {
     setResults([])
     setStartTime(Date.now())
     setDateVisible(true)
+    setHideCountdown(null)
     generateChallengeDate()
   }
 
@@ -161,6 +163,7 @@ export default function RandomDateGenerator() {
     setCurrentDate(null)
     setResults([])
     setDateVisible(true)
+    setHideCountdown(null)
   }
 
   // Timer effect
@@ -179,6 +182,23 @@ export default function RandomDateGenerator() {
 
     return () => clearInterval(timer)
   }, [challengeStarted, challengeEnded])
+
+  // Hard mode countdown effect
+  useEffect(() => {
+    if (!hardMode || hideCountdown === null || hideCountdown <= 0) return
+
+    const interval = setInterval(() => {
+      setHideCountdown(prev => {
+        if (prev === null || prev <= 10) {
+          setDateVisible(false)
+          return null
+        }
+        return prev - 10
+      })
+    }, 10)
+
+    return () => clearInterval(interval)
+  }, [hardMode, hideCountdown])
 
   const handleGenerate = () => {
     setError("")
@@ -397,7 +417,7 @@ export default function RandomDateGenerator() {
                 {currentDate && (
                   <>
                     {/* Date display */}
-                    <div className="p-6 rounded-lg bg-slate-700/50 border border-slate-600 text-center min-h-[140px] flex flex-col items-center justify-center">
+                    <div className="p-6 rounded-lg bg-slate-700/50 border border-slate-600 text-center h-[160px] flex flex-col items-center justify-center relative">
                       {dateVisible ? (
                         <>
                           <p className="text-3xl font-bold text-emerald-400">
@@ -409,6 +429,12 @@ export default function RandomDateGenerator() {
                           <p className="text-slate-400 text-sm mt-2">
                             {formatOrdinal(getCenturyFromYear(currentDate.year))} Century
                           </p>
+                          {/* Countdown overlay for hard mode */}
+                          {hardMode && hideCountdown !== null && (
+                            <div className="absolute top-2 right-2 px-2 py-1 rounded bg-red-600/80 text-white font-mono text-sm">
+                              {(hideCountdown / 1000).toFixed(2)}s
+                            </div>
+                          )}
                         </>
                       ) : (
                         <div className="text-center">
