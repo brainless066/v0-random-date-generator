@@ -107,6 +107,8 @@ export default function RandomDateGenerator() {
   const [startTime, setStartTime] = useState<number>(0)
   const [feedback, setFeedback] = useState<{ isCorrect: boolean; show: boolean }>({ isCorrect: false, show: false })
   const [hardMode, setHardMode] = useState(false)
+  const [infiniteMode, setInfiniteMode] = useState(false)
+  const [elapsedTime, setElapsedTime] = useState(0)
   const [dateVisible, setDateVisible] = useState(true)
   const [hideCountdown, setHideCountdown] = useState<number | null>(null)
 
@@ -126,11 +128,16 @@ export default function RandomDateGenerator() {
     setChallengeStarted(true)
     setChallengeEnded(false)
     setTimeLeft(60)
+    setElapsedTime(0)
     setResults([])
     setStartTime(Date.now())
     setDateVisible(true)
     setHideCountdown(null)
     generateChallengeDate()
+  }
+
+  const stopChallenge = () => {
+    setChallengeEnded(true)
   }
 
   const handleWeekdayGuess = (guessedDay: string) => {
@@ -160,6 +167,7 @@ export default function RandomDateGenerator() {
     setChallengeStarted(false)
     setChallengeEnded(false)
     setTimeLeft(60)
+    setElapsedTime(0)
     setCurrentDate(null)
     setResults([])
     setDateVisible(true)
@@ -171,17 +179,23 @@ export default function RandomDateGenerator() {
     if (!challengeStarted || challengeEnded) return
 
     const timer = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev <= 1) {
-          setChallengeEnded(true)
-          return 0
-        }
-        return prev - 1
-      })
+      if (infiniteMode) {
+        // Count up for infinite mode
+        setElapsedTime(prev => prev + 1)
+      } else {
+        // Count down for regular mode
+        setTimeLeft(prev => {
+          if (prev <= 1) {
+            setChallengeEnded(true)
+            return 0
+          }
+          return prev - 1
+        })
+      }
     }, 1000)
 
     return () => clearInterval(timer)
-  }, [challengeStarted, challengeEnded])
+  }, [challengeStarted, challengeEnded, infiniteMode])
 
   // Hard mode countdown effect
   useEffect(() => {
@@ -297,8 +311,10 @@ export default function RandomDateGenerator() {
                 <div className="text-center space-y-2 text-slate-300">
                   <p>You will be shown random dates.</p>
                   <p>Click the correct weekday as fast as you can!</p>
-                  <p className={hardMode ? 'text-red-400 font-semibold' : 'text-amber-400 font-semibold'}>
-                    {hardMode ? 'Date visible for 1 second only!' : 'You have 1 minute.'}
+                  <p className={hardMode ? 'text-red-400 font-semibold' : infiniteMode ? 'text-cyan-400 font-semibold' : 'text-amber-400 font-semibold'}>
+                    {hardMode && 'Date visible for 1 second only!'}
+                    {!hardMode && infiniteMode && 'No time limit - stop whenever you want!'}
+                    {!hardMode && !infiniteMode && 'You have 1 minute.'}
                   </p>
                 </div>
                 
@@ -313,24 +329,49 @@ export default function RandomDateGenerator() {
                   />
                 </div>
                 
+                {/* Infinite Time Mode Toggle */}
+                <div className="flex items-center justify-center gap-3 p-3 rounded-lg bg-slate-700/50 border border-slate-600">
+                  <span className={`text-sm ${infiniteMode ? 'text-cyan-400 font-semibold' : 'text-slate-400'}`}>
+                    Infinite Time Mode
+                  </span>
+                  <Switch 
+                    checked={infiniteMode} 
+                    onCheckedChange={setInfiniteMode}
+                  />
+                </div>
+                
                 <Button 
                   onClick={startChallenge}
                   className={`w-full font-semibold text-lg py-6 ${
                     hardMode 
                       ? 'bg-red-600 hover:bg-red-700' 
-                      : 'bg-emerald-600 hover:bg-emerald-700'
+                      : infiniteMode
+                        ? 'bg-cyan-600 hover:bg-cyan-700'
+                        : 'bg-emerald-600 hover:bg-emerald-700'
                   } text-white`}
                 >
-                  Start {hardMode ? 'Hard' : ''} Challenge
+                  Start {hardMode ? 'Hard ' : ''}{infiniteMode ? 'Infinite ' : ''}Challenge
                 </Button>
               </CardContent>
             </Card>
           ) : challengeEnded ? (
             <Card className="w-full max-w-2xl border-slate-700 bg-slate-800/50 backdrop-blur">
               <CardHeader className="text-center">
-                <CardTitle className="text-2xl font-bold text-white">Challenge Complete!</CardTitle>
+                <CardTitle className="text-2xl font-bold text-white">
+                  {infiniteMode ? 'Challenge Stopped!' : 'Challenge Complete!'}
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
+                {/* Total Time for Infinite Mode */}
+                {infiniteMode && (
+                  <div className="text-center p-4 rounded-lg bg-cyan-900/30 border border-cyan-700">
+                    <p className="text-4xl font-mono font-bold text-cyan-400">
+                      {Math.floor(elapsedTime / 60)}:{(elapsedTime % 60).toString().padStart(2, '0')}
+                    </p>
+                    <p className="text-slate-400 text-sm">Total Time</p>
+                  </div>
+                )}
+                
                 {/* Stats */}
                 <div className="grid grid-cols-3 gap-4 text-center">
                   <div className="p-4 rounded-lg bg-emerald-900/30 border border-emerald-700">
@@ -398,16 +439,25 @@ export default function RandomDateGenerator() {
               />
               
               <CardHeader className="text-center pb-2">
-                {/* Hard mode badge */}
-                {hardMode && (
-                  <div className="mb-2">
+                {/* Mode badges */}
+                <div className="mb-2 flex items-center justify-center gap-2">
+                  {hardMode && (
                     <span className="px-2 py-1 rounded text-xs font-bold bg-red-600 text-white">HARD MODE</span>
+                  )}
+                  {infiniteMode && (
+                    <span className="px-2 py-1 rounded text-xs font-bold bg-cyan-600 text-white">INFINITE</span>
+                  )}
+                </div>
+                {/* Timer */}
+                {infiniteMode ? (
+                  <div className="text-5xl font-mono font-bold text-cyan-400">
+                    {Math.floor(elapsedTime / 60)}:{(elapsedTime % 60).toString().padStart(2, '0')}
+                  </div>
+                ) : (
+                  <div className={`text-5xl font-mono font-bold ${timeLeft <= 10 ? 'text-red-400' : hardMode ? 'text-red-400' : 'text-amber-400'}`}>
+                    {timeLeft}s
                   </div>
                 )}
-                {/* Timer */}
-                <div className={`text-5xl font-mono font-bold ${timeLeft <= 10 ? 'text-red-400' : hardMode ? 'text-red-400' : 'text-amber-400'}`}>
-                  {timeLeft}s
-                </div>
                 <div className="text-slate-400 text-sm mt-1">
                   {correctCount} correct / {results.length} total
                 </div>
@@ -456,6 +506,16 @@ export default function RandomDateGenerator() {
                         </Button>
                       ))}
                     </div>
+                    
+                    {/* Stop button for infinite mode */}
+                    {infiniteMode && (
+                      <Button 
+                        onClick={stopChallenge}
+                        className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold"
+                      >
+                        Stop Challenge
+                      </Button>
+                    )}
                   </>
                 )}
               </CardContent>
