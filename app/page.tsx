@@ -418,6 +418,22 @@ export default function RandomDateGenerator() {
                 <CardTitle className="text-2xl font-bold text-white">
                   {infiniteMode ? 'Challenge Stopped!' : 'Challenge Complete!'}
                 </CardTitle>
+                {/* Mode badges */}
+                {(hardMode || infiniteMode || customRangeMode) && (
+                  <div className="flex items-center justify-center gap-2 flex-wrap mt-2">
+                    {hardMode && (
+                      <span className="px-2 py-1 rounded text-xs font-bold bg-red-600 text-white">HARD MODE</span>
+                    )}
+                    {infiniteMode && (
+                      <span className="px-2 py-1 rounded text-xs font-bold bg-cyan-600 text-white">INFINITE</span>
+                    )}
+                    {customRangeMode && (
+                      <span className="px-2 py-1 rounded text-xs font-bold bg-violet-600 text-white">
+                        {customStartCentury.toLocaleString()}-{customEndCentury.toLocaleString()} C
+                      </span>
+                    )}
+                  </div>
+                )}
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* Total Time for Infinite Mode */}
